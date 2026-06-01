@@ -33,10 +33,10 @@ TOOL_SPECS = [
         "description": (
             "Compute shipping fee in VND from total package weight and destination city. "
             "Supported cities: Hanoi, Ho Chi Minh (HCM), Da Nang; others use default rates. "
-            "Example: weight_kg=0.7, destination='Hanoi'."
+            "Example: weight=0.7, destination='Hanoi'."
         ),
         "parameters": {
-            "weight_kg": "float — total weight of all items in kg",
+            "weight": "float — total weight of all items in kg",
             "destination": "string — city name",
         },
         "function": calc_shipping,

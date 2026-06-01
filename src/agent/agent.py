@@ -6,8 +6,6 @@ from src.telemetry.logger import logger
 from src.telemetry.metrics import tracker
 
 
-import ast
-
 class ReActAgent:
     """
     ReAct agent: Thought -> Action -> Observation loop until Final Answer.
@@ -51,7 +49,7 @@ Final Answer: <clear answer with numbers in VND if applicable>
 
 Rules:
 - Only use these tools: {tool_names}
-- Action syntax: check_stock(item_name="iPhone"), get_discount(coupon_code="WINNER"), calc_shipping(weight_kg=0.7, destination="Hanoi")
+- Action syntax: check_stock(item_name="iPhone"), get_discount(coupon_code="WINNER"), calc_shipping(weight=0.7, destination="Hanoi")
 - For order totals: check_stock → get_discount (if coupon) → calc_shipping (weight = unit weight × quantity)
 - If a tool returns Error, fix arguments or explain in Final Answer
 - Do NOT invent Observation lines — only the system provides them
@@ -80,10 +78,8 @@ Action: check_stock(item_name="iPhone")
         final_answer: Optional[str] = None
 
         while steps < self.max_steps:
-            # TODO: Generate LLM response
+            current_prompt = self._build_prompt(user_input)
             result = self.llm.generate(current_prompt, system_prompt=self.get_system_prompt())
-            
-            # TODO: Parse Thought/Action from result
             content = result.get("content", "")
 
             logger.log_event("AGENT_STEP", {
@@ -93,84 +89,49 @@ Action: check_stock(item_name="iPhone")
                 "latency_ms": result.get("latency_ms", 0),
             })
 
-            final_match = re.search(r"Final Answer:\s*(.*)", content, re.DOTALL)
-            if final_match:
-                final_answer = final_match.group(1).strip()
+            self.history.append(content)
+
+            final_answer = parse_final_answer(content)
+            if final_answer:
                 logger.log_event("AGENT_END", {"steps": steps + 1})
                 return final_answer
-            
-            action_match = re.search(
-                r"Action:\s*([a-zA-Z_][a-zA-Z0-9_]*)\((.*?)\)",
-                content,
-                re.DOTALL
-            )
-            
-            # TODO: If Action found -> Call tool -> Append Observation
-            if action_match:
-                tool_name = action_match.group(1).strip()
-                args = action_match.group(2).strip()
 
-                observation = self._execute_tool(tool_name, args)
-
-                current_prompt = f"""
-    {current_prompt}
-
-    {content}
-
-    Observation: {observation}
-    """
+            action = parse_action(content)
+            if action:
+                tool_name, kwargs = action
+                observation = self._execute_tool(tool_name, kwargs)
+                self.history.append(f"Observation: {observation}")
             else:
-                current_prompt = f"""
-    {current_prompt}
+                self.history.append(
+                    "Observation: No valid action found. Continue using the required ReAct format."
+                )
 
-    {content}
-
-    Observation: No valid action found. Continue using the required ReAct format.
-    """
-            # TODO: If Final Answer found -> Break loop
-            
             steps += 1
-            
+
         logger.log_event("AGENT_END", {"steps": steps})
         return "I could not complete the task within the maximum number of steps."
-        return "Not implemented. Fill in the TODOs!"
 
-    def _execute_tool(self, tool_name: str, args: str) -> str:
+    def _execute_tool(self, tool_name: str, kwargs: Dict[str, Any]) -> str:
         """
         Helper method to execute tools by name.
         """
-        
-        for tool in self.tools:
-            if tool['name'] == tool_name:
-                # TODO: Implement dynamic function calling or simple if/else
-                tool_function = tool.get("function")
+        tool = self._tool_map.get(tool_name)
+        if not tool:
+            return f"Tool {tool_name} not found."
 
-                if tool_function is None:
-                    return f"Tool {tool_name} has no function configured."
-                
-                try:
-                    parsed_call = ast.parse(f"tool_call({args})", mode="eval").body
+        tool_function = tool.get("function")
+        if tool_function is None:
+            return f"Tool {tool_name} has no function configured."
 
-                    positional_args = [
-                        ast.literal_eval(arg)
-                        for arg in parsed_call.args
-                    ]
+        try:
+            result = tool_function(**kwargs)
+            logger.log_event("TOOL_CALL", {
+                "tool_name": tool_name,
+                "args": kwargs,
+                "result": result,
+            })
+            return str(result)
+        except Exception as exc:
+            return f"Tool {tool_name} failed: {exc}"
 
-                    keyword_args = {
-                        keyword.arg: ast.literal_eval(keyword.value)
-                        for keyword in parsed_call.keywords
-                    }
-
-                    result = tool_function(*positional_args, **keyword_args)
-
-                    logger.log_event("TOOL_CALL", {
-                        "tool_name": tool_name,
-                        "args": args,
-                        "result": result,
-                    })
-
-                    return str(result)
-                except Exception as exc:
-                    return f"Tool {tool_name} failed: {exc}"
-                return f"Result of {tool_name}"
         return f"Tool {tool_name} not found."
