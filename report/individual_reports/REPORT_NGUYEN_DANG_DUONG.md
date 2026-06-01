@@ -8,7 +8,7 @@
 
 ## I. Technical Contribution (15 Points)
 
-Trong lab này, phần đóng góp chính của tôi tập trung vào việc biến project từ skeleton/baseline thành một ReAct Agent chạy được, có nhiều tool hơn, có telemetry để debug, và có các guardrail cơ bản để giảm lỗi hallucination.
+Trong lab này, phần đóng góp chính của em tập trung vào việc biến project từ skeleton/baseline thành một ReAct Agent chạy được, có nhiều tool hơn, có telemetry để debug, và có các guardrail cơ bản để giảm lỗi hallucination.
 
 ### 1. Hoàn thiện ReAct Agent loop
 
@@ -18,7 +18,7 @@ Module chính:
 - `src/agent/parsers.py`
 - `src/tools/registry.py`
 
-Các phần tôi đã tham gia xây dựng/sửa:
+Các phần em đã tham gia xây dựng/sửa:
 
 - Sửa lỗi `current_prompt referenced before assignment` trong `ReActAgent.run`.
 - Dùng `_build_prompt(user_input)` để build prompt ở mỗi vòng lặp.
@@ -28,7 +28,7 @@ Các phần tôi đã tham gia xây dựng/sửa:
 - Cài `_execute_tool` để map tool name từ LLM sang function thật trong `TOOL_SPECS`.
 - Ghi telemetry cho từng bước: `AGENT_START`, `AGENT_STEP`, `TOOL_CALL`, `AGENT_END`.
 
-Một thay đổi quan trọng là ưu tiên xử lý `Action` trước `Final Answer`. Trong quá trình chạy thử, tôi phát hiện model đôi khi tự viết cả `Observation` và `Final Answer` ngay sau `Action`. Nếu agent tin vào phần đó, nó sẽ dùng dữ liệu do model tự bịa thay vì dữ liệu từ tool thật. Tôi đã sửa loop để nếu output có `Action`, agent luôn gọi tool thật trước, sau đó mới cho model trả lời ở bước tiếp theo.
+Một thay đổi quan trọng là ưu tiên xử lý `Action` trước `Final Answer`. Trong quá trình chạy thử, em phát hiện model đôi khi tự viết cả `Observation` và `Final Answer` ngay sau `Action`. Nếu agent tin vào phần đó, nó sẽ dùng dữ liệu do model tự bịa thay vì dữ liệu từ tool thật. em đã sửa loop để nếu output có `Action`, agent luôn gọi tool thật trước, sau đó mới cho model trả lời ở bước tiếp theo.
 
 ### 2. Làm baseline chatbot chạy được
 
@@ -48,7 +48,7 @@ Nguyên nhân là `chatbot.py` import `EcommerceChatbot` từ module không tồ
 from src.chatbot.baseline import EcommerceChatbot
 ```
 
-Tôi đã thêm class `EcommerceChatbot` trực tiếp trong `chatbot.py`. Baseline chatbot dùng chung `LLMProvider` với agent nhưng không gọi tool. Điều này giúp so sánh rõ giữa:
+em đã thêm class `EcommerceChatbot` trực tiếp trong `chatbot.py`. Baseline chatbot dùng chung `LLMProvider` với agent nhưng không gọi tool. Điều này giúp so sánh rõ giữa:
 
 - Chatbot: trả lời trực tiếp bằng LLM.
 - ReAct Agent: gọi tool để lấy dữ liệu thật và tính toán nhiều bước.
@@ -73,7 +73,7 @@ Trong khi function thật là:
 def calc_shipping(weight: float, destination: str) -> int:
 ```
 
-Tôi đã đồng bộ lại prompt và registry thành:
+em đã đồng bộ lại prompt và registry thành:
 
 ```text
 calc_shipping(weight=0.7, destination="Hanoi")
@@ -83,7 +83,7 @@ Sau khi sửa, agent không còn phải tự sửa lỗi argument ở bước sa
 
 ### 4. Thêm 3 tool mới cho agent
 
-Để tăng khả năng của agent và xử lý đúng các workflow e-commerce thực tế hơn, tôi đã thêm 3 tool mới:
+Để tăng khả năng của agent và xử lý đúng các workflow e-commerce thực tế hơn, em đã thêm 3 tool mới:
 
 | File | Function | Mục đích |
 | :--- | :--- | :--- |
@@ -91,7 +91,7 @@ Sau khi sửa, agent không còn phải tự sửa lỗi argument ở bước sa
 | `src/tools/track_order.py` | `track_order(order_id)` | Tra trạng thái, vị trí hiện tại và ETA của đơn hàng |
 | `src/tools/calculate_installment.py` | `calculate_installment(amount_vnd, months)` | Tính tiền trả góp theo tháng |
 
-Tôi cũng cập nhật `src/tools/registry.py` để đăng ký các tool này vào `TOOL_SPECS`, giúp agent có thể gọi chúng qua ReAct loop.
+em cũng cập nhật `src/tools/registry.py` để đăng ký các tool này vào `TOOL_SPECS`, giúp agent có thể gọi chúng qua ReAct loop.
 
 Ví dụ smoke test cho tool mới:
 
@@ -113,7 +113,7 @@ Module:
 - `src/agent/agent.py`
 - `run_agent.py`
 
-Tôi thêm rule vào system prompt:
+em thêm rule vào system prompt:
 
 - Reservation: phải `check_stock` trước, sau đó mới gọi `reserve_item`.
 - Tracking: nếu user có order ID thì dùng `track_order`.
@@ -121,7 +121,7 @@ Tôi thêm rule vào system prompt:
 - Không tự bịa missing arguments như `destination`, `coupon_code`, `customer_name`, `quantity`, `order_id`, `months`.
 - Nếu có `Action`, dừng ngay sau `Action` và chờ `Observation`.
 
-Tôi cũng thêm demo cases trong `run_agent.py`:
+em cũng thêm demo cases trong `run_agent.py`:
 
 - Multi-step order.
 - Stock lookup.
@@ -181,7 +181,7 @@ Lỗi này đến từ 3 nguyên nhân:
 
 **Solution**:
 
-Tôi đã xử lý theo 2 hướng:
+em đã xử lý theo 2 hướng:
 
 1. Thêm tool thật:
 
@@ -212,7 +212,7 @@ Observation: reservation_id=RSV-1001; status=reserved; product=MacBook Air M3; q
 
 ### Case 2: Agent tin vào Observation do model tự bịa
 
-Trong quá trình chạy với Gemini, tôi phát hiện model đôi khi trả về một output chứa cả `Action`, `Observation`, và `Final Answer` trong cùng một response:
+Trong quá trình chạy với Gemini, em phát hiện model đôi khi trả về một output chứa cả `Action`, `Observation`, và `Final Answer` trong cùng một response:
 
 ```text
 Action: calculate_installment(amount_vnd=28990000, months=6)
@@ -232,13 +232,13 @@ System prompt đã nói "Do NOT invent Observation lines", nhưng LLM vẫn có 
 
 **Solution**:
 
-Tôi sửa `ReActAgent.run` để ưu tiên `Action`:
+em sửa `ReActAgent.run` để ưu tiên `Action`:
 
 - Nếu có `Action`, agent luôn gọi tool thật.
 - Không nhận `Final Answer` trong cùng response với `Action`.
 - Chỉ nhận `Final Answer` khi output không còn `Action`.
 
-Tôi cũng thêm rule:
+em cũng thêm rule:
 
 ```text
 If you output an Action, stop immediately after that Action and wait for the Observation before writing Final Answer.
@@ -329,7 +329,7 @@ Agent có thể dùng `unit_price_vnd` để tính installment, hoặc dùng `st
 
 ### 4. Agent cũng có thể tệ hơn chatbot nếu guardrail yếu
 
-Một insight quan trọng của tôi là agent không tự động an toàn hơn chatbot. Agent có tool nên nếu chọn sai tool hoặc tự bịa argument thì lỗi có thể nghiêm trọng hơn:
+Một insight quan trọng của em là agent không tự động an toàn hơn chatbot. Agent có tool nên nếu chọn sai tool hoặc tự bịa argument thì lỗi có thể nghiêm trọng hơn:
 
 - Chatbot sai: thường chỉ là câu trả lời sai.
 - Agent sai: có thể gọi sai tool, tạo reservation giả, tính sai phí, hoặc đưa ra quyết định nghiệp vụ sai.
@@ -350,7 +350,7 @@ Kết luận cá nhân:
 
 ### 1. Safety / Guardrails
 
-Tôi muốn thêm lớp validation trước khi gọi tool:
+em muốn thêm lớp validation trước khi gọi tool:
 
 - Nếu `calc_shipping` được gọi nhưng user chưa cung cấp destination, agent phải hỏi lại thay vì tự bịa.
 - Nếu `reserve_item` được gọi nhưng thiếu customer name hoặc quantity, agent phải hỏi lại.
@@ -391,7 +391,7 @@ Can I return an opened AirPods Pro 2?
 
 ### 4. Workflow bằng state machine
 
-Khi số tool tăng, ReAct loop tự do có thể khó kiểm soát. Tôi muốn chuyển sang LangGraph hoặc một state machine tự viết:
+Khi số tool tăng, ReAct loop tự do có thể khó kiểm soát. em muốn chuyển sang LangGraph hoặc một state machine tự viết:
 
 - `StockCheckState`
 - `DiscountState`
@@ -417,7 +417,7 @@ Những metric này giúp đánh giá agent như một production system thay v�
 
 ## Summary
 
-Qua lab này, tôi hiểu rõ hơn rằng ReAct Agent không chỉ là "LLM có suy nghĩ từng bước". Một agent tốt cần:
+Qua lab này, em hiểu rõ hơn rằng ReAct Agent không chỉ là "LLM có suy nghĩ từng bước". Một agent tốt cần:
 
 - Tool thật.
 - Tool schema rõ.
@@ -426,4 +426,3 @@ Qua lab này, tôi hiểu rõ hơn rằng ReAct Agent không chỉ là "LLM có 
 - Telemetry để debug.
 - Guardrail để ngăn hallucinated actions/arguments.
 
-Phần tôi đóng góp nhiều nhất là làm agent chạy được end-to-end, thêm 3 tool mới, sửa các lỗi ReAct loop, và phân tích failure bằng log thật. Đây cũng là phần giúp tôi hiểu sâu nhất sự khác biệt giữa chatbot thông thường và agentic system.
