@@ -1,6 +1,6 @@
 # Group Report: Lab 3 - Production-Grade Agentic System
 
-- **Team Name**: Day 3 Lab Team
+- **Team Name**: Day 3 Lab Team 139
 - **Team Members**: [Nguyễn Đăng Dương, Hà Xuân Huy, Tôn Thành Đạt]
 - **Deployment Date**: 2026-06-01
 
