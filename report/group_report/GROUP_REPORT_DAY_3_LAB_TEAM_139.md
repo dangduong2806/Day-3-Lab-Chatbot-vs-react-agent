@@ -1,7 +1,7 @@
 # Group Report: Lab 3 - Production-Grade Agentic System
 
 - **Team Name**: Day 3 Lab Team
-- **Team Members**: [Điền tên thành viên nhóm]
+- **Team Members**: [Nguyễn Đăng Dương, Hà Xuân Huy, Tôn Thành Đạt]
 - **Deployment Date**: 2026-06-01
 
 ---
@@ -224,6 +224,3 @@ Unit price: 28,990,000 VND
 ```
 
 ---
-
-> [!NOTE]
-> Before submission, rename this file to `GROUP_REPORT_[TEAM_NAME].md` if your instructor requires the exact naming convention, and replace the team member placeholders.
