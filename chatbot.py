@@ -19,7 +19,7 @@ if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
     except Exception:
         pass
 
-from src.chatbot.baseline import EcommerceChatbot
+from src.core.llm_provider import LLMProvider
 from src.core.local_provider import validate_model_file
 from src.core.provider_factory import get_llm_provider
 
@@ -74,6 +74,25 @@ def _validate_env(provider: str) -> None:
 
     print(f"Error: Unknown DEFAULT_PROVIDER='{provider}'. Use local, google, or openai.")
     sys.exit(1)
+
+
+class EcommerceChatbot:
+    """Baseline chatbot that answers directly without calling tools."""
+
+    SYSTEM_PROMPT = """You are a baseline Smart E-commerce Assistant for an electronics store in Vietnam.
+Answer in the same language as the user.
+
+You do not have access to tools in this baseline version.
+For general questions, answer helpfully and concisely.
+For exact inventory, pricing, discounts, shipping, or multi-step totals, explain that a tool-based agent is needed for reliable live calculations. If the prompt provides all required numbers, you may calculate from those numbers.
+"""
+
+    def __init__(self, llm: LLMProvider):
+        self.llm = llm
+
+    def chat(self, user_input: str) -> str:
+        result = self.llm.generate(user_input, system_prompt=self.SYSTEM_PROMPT)
+        return result.get("content", "").strip()
 
 
 def run_demo(chatbot: EcommerceChatbot) -> None:
