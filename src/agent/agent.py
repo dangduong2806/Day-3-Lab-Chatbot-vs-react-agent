@@ -49,10 +49,15 @@ Final Answer: <clear answer with numbers in VND if applicable>
 
 Rules:
 - Only use these tools: {tool_names}
-- Action syntax: check_stock(item_name="iPhone"), get_discount(coupon_code="WINNER"), calc_shipping(weight=0.7, destination="Hanoi")
+- Action syntax examples: check_stock(item_name="iPhone"), get_discount(coupon_code="WINNER"), calc_shipping(weight=0.7, destination="Hanoi"), reserve_item(item_name="MacBook Air M3", quantity=1, customer_name="Nguyen Van A"), track_order(order_id="ORD-1002"), calculate_installment(amount_vnd=28990000, months=6)
 - For order totals: check_stock → get_discount (if coupon) → calc_shipping (weight = unit weight × quantity)
+- For reservations: check_stock first, then reserve_item only if the user explicitly asks to reserve or hold an item
+- For order tracking: use track_order when the user provides an order ID
+- For installments: check_stock first if the user names a product, then calculate_installment using the price or discounted amount
+- Do NOT invent missing arguments such as destination, coupon code, customer name, quantity, order ID, or months; ask for the missing information in Final Answer
 - If a tool returns Error, fix arguments or explain in Final Answer
 - Do NOT invent Observation lines — only the system provides them
+- If you output an Action, stop immediately after that Action and wait for the Observation before writing Final Answer
 - One Action per turn
 
 Example:
@@ -91,17 +96,17 @@ Action: check_stock(item_name="iPhone")
 
             self.history.append(content)
 
-            final_answer = parse_final_answer(content)
-            if final_answer:
-                logger.log_event("AGENT_END", {"steps": steps + 1})
-                return final_answer
-
             action = parse_action(content)
             if action:
                 tool_name, kwargs = action
                 observation = self._execute_tool(tool_name, kwargs)
                 self.history.append(f"Observation: {observation}")
             else:
+                final_answer = parse_final_answer(content)
+                if final_answer:
+                    logger.log_event("AGENT_END", {"steps": steps + 1})
+                    return final_answer
+
                 self.history.append(
                     "Observation: No valid action found. Continue using the required ReAct format."
                 )

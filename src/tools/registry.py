@@ -1,11 +1,14 @@
 """
-Tool registry for ReAct agent — 3 core e-commerce tools.
+Tool registry for ReAct agent — core e-commerce tools.
 Each tool module owns its own data (PRODUCTS, COUPONS, SHIPPING_RATES).
 """
 
+from src.tools.calculate_installment import calculate_installment
 from src.tools.calc_shipping import calc_shipping
 from src.tools.check_stock import check_stock
 from src.tools.get_discount import get_discount
+from src.tools.reserve_item import reserve_item
+from src.tools.track_order import track_order
 
 TOOL_SPECS = [
     {
@@ -40,5 +43,40 @@ TOOL_SPECS = [
             "destination": "string — city name",
         },
         "function": calc_shipping,
+    },
+    {
+        "name": "reserve_item",
+        "description": (
+            "Reserve a product for a customer after stock has been checked. "
+            "Use only when the user explicitly asks to reserve or hold an item. "
+            "Example: item_name='MacBook Air M3', quantity=1, customer_name='Nguyen Van A'."
+        ),
+        "parameters": {
+            "item_name": "string — product name, e.g. iPhone, MacBook",
+            "quantity": "integer — number of units to reserve",
+            "customer_name": "string — customer name",
+        },
+        "function": reserve_item,
+    },
+    {
+        "name": "track_order",
+        "description": (
+            "Look up current order status, location, and ETA by order ID. "
+            "Example: order_id='ORD-1002'."
+        ),
+        "parameters": {"order_id": "string — order ID, e.g. ORD-1002"},
+        "function": track_order,
+    },
+    {
+        "name": "calculate_installment",
+        "description": (
+            "Calculate monthly installment payment in VND for supported terms. "
+            "Supported months: 3, 6, 12. Example: amount_vnd=28990000, months=6."
+        ),
+        "parameters": {
+            "amount_vnd": "integer — amount to finance in VND",
+            "months": "integer — installment term, one of 3, 6, 12",
+        },
+        "function": calculate_installment,
     },
 ]

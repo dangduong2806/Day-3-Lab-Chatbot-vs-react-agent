@@ -36,6 +36,21 @@ TEST_CASES = [
         "label": "Single tool — stock lookup",
         "prompt": "How many MacBook Air M3 units are in stock and what is the unit price in VND?",
     },
+    {
+        "id": "reserve",
+        "label": "Reservation workflow",
+        "prompt": "Please reserve 1 MacBook Air M3 for customer Nguyen Van A after checking stock.",
+    },
+    {
+        "id": "track_order",
+        "label": "Order tracking",
+        "prompt": "What is the status and current location of order ORD-1002?",
+    },
+    {
+        "id": "installment",
+        "label": "Installment plan",
+        "prompt": "If I buy a MacBook Air M3 and pay over 6 months, what is the monthly payment in VND?",
+    },
 ]
 
 
