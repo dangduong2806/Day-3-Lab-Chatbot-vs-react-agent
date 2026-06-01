@@ -417,7 +417,7 @@ Những metric này giúp đánh giá agent như một production system thay v�
 
 ## Summary
 
-Qua lab này, em hiểu rõ hơn rằng ReAct Agent không chỉ là "LLM có suy nghĩ từng bước". Một agent tốt cần:
+Qua lab này, em hiểu rõ hơn rằng ReAct Agent không chỉ là LLM có suy nghĩ từng bước. Một agent tốt cần:
 
 - Tool thật.
 - Tool schema rõ.
