@@ -1,6 +1,6 @@
 """
 Tool registry for ReAct agent — 3 core e-commerce tools.
-Data: src/tools/data/ecommerce.json
+Each tool module owns its own data (PRODUCTS, COUPONS, SHIPPING_RATES).
 """
 
 from src.tools.calc_shipping import calc_shipping

@@ -30,11 +30,16 @@ Download the **Phi-3-mini-4k-instruct-q4.gguf** (approx 2.2GB) from Hugging Face
 ### 2. Place Model in Project
 Create a `models/` folder in the root and move the downloaded `.gguf` file there.
 
-### 3. Update `.env`
-Change your `DEFAULT_PROVIDER` and set the path:
+### 3. Update `.env` and download model
 ```env
 DEFAULT_PROVIDER=local
 LOCAL_MODEL_PATH=./models/Phi-3-mini-4k-instruct-q4.gguf
+```
+
+```bash
+pip install llama-cpp-python --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+python scripts/download_model.py
+python chatbot.py
 ```
 
 ## 🎯 Lab Objectives

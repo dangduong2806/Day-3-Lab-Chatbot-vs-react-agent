@@ -25,29 +25,16 @@ from src.tools.registry import TOOL_SPECS
 TEST_CASES = [
     {
         "id": "multi_step",
-        "label": "Order total with coupon + express shipping",
+        "label": "Multi-step order (agent should use tools)",
         "prompt": (
-            "I want to buy 2 iPhones using code 'WINNER' with express shipping to Hanoi. "
-            "What is the total price in VND? Show your calculation."
+            "I want to buy 2 iPhones using code 'WINNER' and ship to Hanoi. "
+            "What is the total price in VND? Show your calculation step by step."
         ),
     },
     {
-        "id": "compare",
-        "label": "Compare products",
-        "prompt": "Compare iPhone 15 and Samsung Galaxy S24 — which is cheaper and by how much?",
-    },
-    {
-        "id": "order_track",
-        "label": "Order tracking",
-        "prompt": "What is the status of order ORD-1002?",
-    },
-    {
-        "id": "installment",
-        "label": "Installment plan",
-        "prompt": (
-            "If I buy a MacBook Air M3 and pay in 6-month installments, "
-            "what is the monthly payment in VND?"
-        ),
+        "id": "stock_check",
+        "label": "Single tool — stock lookup",
+        "prompt": "How many MacBook Air M3 units are in stock and what is the unit price in VND?",
     },
 ]
 
@@ -116,7 +103,7 @@ def main() -> None:
     provider = os.getenv("DEFAULT_PROVIDER", "google").lower()
     _validate_env(provider)
 
-    max_steps = int(os.getenv("AGENT_MAX_STEPS", "12"))
+    max_steps = int(os.getenv("AGENT_MAX_STEPS", "8"))
     llm = get_llm_provider()
     agent = ReActAgent(llm=llm, tools=TOOL_SPECS, max_steps=max_steps)
 
